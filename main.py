@@ -5,20 +5,20 @@ import librosa
 import numpy as np
 import joblib
 import pandas as pd
-from deepface import DeepFace
-from keras.models import load_model
 import time
 from collections import Counter
+from deepface import DeepFace
+from keras.models import load_model
 
-# Load pretrained models
+# === Load Models ===
 voice_model = joblib.load("voice_emotion_model.pkl")
 mood_pipeline = joblib.load("user_mood_kmeans_model.pkl")
-""" user_pref_model = load_model("user_preference_model.h5")
+user_pref_model = load_model("user_preference_model.h5")
 
-# Load song dataset
+# === Load Dataset ===
 songs_df = pd.read_csv("mood_based_song_analysis/predicted_moods.csv")
- """
-# Mapping clusters to mood labels
+
+# === Cluster to Label Mapping ===
 cluster_labels = {
     0: "Happy",
     1: "Sad",
@@ -27,12 +27,12 @@ cluster_labels = {
     4: "Neutral",
 }
 
+# === Helper Functions ===
 def record_audio(filename="live_audio.wav", duration=3, fs=44100):
-    print("🎙️ Recording audio for emotion...")
+    print("🎙️ Recording audio...")
     audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     sd.wait()
     wav.write(filename, fs, audio)
-    print("✅ Audio recorded.")
 
 def extract_voice_features(file):
     y, sr = librosa.load(file)
@@ -42,15 +42,7 @@ def extract_voice_features(file):
 def predict_voice_emotion(file):
     features = extract_voice_features(file).reshape(1, -1)
     pred = voice_model.predict(features)[0]
-    proba = voice_model.predict_proba(features).max()
-    return pred.capitalize(), proba
-
-
-
-import time
-from collections import Counter
-import cv2
-from deepface import DeepFace
+    return pred.capitalize(), voice_model.predict_proba(features).max()
 
 def get_face_emotion():
     cap = cv2.VideoCapture(0)
@@ -58,114 +50,80 @@ def get_face_emotion():
         print("❌ Cannot open webcam.")
         return None
 
-    print("📷 Showing webcam. Press 'q' to start 15-second emotion analysis...")
-
-    analyzing = False
-    emotions_list = []
-    start_time = None
+    print("📷 Press 'q' to start 15s face emotion detection.")
+    emotions_list, analyzing, start_time = [], False, None
 
     while True:
         ret, frame = cap.read()
-        if not ret:
-            print("❌ Failed to grab frame.")
-            break
-
+        if not ret: break
         key = cv2.waitKey(1) & 0xFF
 
-        # Press 'q' to start analyzing
         if key == ord('q') and not analyzing:
-            analyzing = True
-            start_time = time.time()
-            print("🧠 Starting 15-second emotion analysis...")
+            analyzing, start_time = True, time.time()
+            print("🧠 Detecting emotions for 15 seconds...")
 
-        # Analyzing for 15 seconds
         if analyzing:
             try:
                 results = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
-                dominant_emotion = results[0]['dominant_emotion'] if isinstance(results, list) else results['dominant_emotion']
-                dominant_emotion = dominant_emotion.capitalize()
-                emotions_list.append(dominant_emotion)
+                dominant = results[0]['dominant_emotion'] if isinstance(results, list) else results['dominant_emotion']
+                dominant = dominant.capitalize()
+                emotions_list.append(dominant)
+                cv2.putText(frame, f"{dominant}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,255,0), 2)
+            except:
+                cv2.putText(frame, "No face", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
-                # Show current emotion on frame
-                cv2.putText(frame, f"Detected: {dominant_emotion}", (20, 40),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-                print(f"🟢 Frame Emotion: {dominant_emotion}")
-            except Exception as e:
-                print("⚠️ Frame skipped (no face or error)")
-                cv2.putText(frame, "No face detected", (20, 40),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-
-            # Show remaining time
             elapsed = time.time() - start_time
-            time_left = max(0, int(15 - elapsed))
-            cv2.putText(frame, f"⏱️ {time_left}s left", (20, 80),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-
-            # End after 15 seconds
-            if elapsed >= 15:
-                break
+            cv2.putText(frame, f"{15-int(elapsed)}s left", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 2)
+            if elapsed >= 15: break
         else:
-            # Before analysis starts, prompt user
-            cv2.putText(frame, "Press 'q' to start analysis", (20, 40),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+            cv2.putText(frame, "Press 'q' to start", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,0), 2)
 
-        # Show frame
-        cv2.imshow("Live Webcam - Emotion Detector", frame)
+        cv2.imshow("Face Emotion", frame)
 
     cap.release()
     cv2.destroyAllWindows()
 
-    if not emotions_list:
-        print("⚠️ No emotion detected during analysis.")
-        return None
-
-    # Final result: most frequent emotion
-    final_emotion = Counter(emotions_list).most_common(1)[0][0]
-    print(f"🎯 Final Predicted Emotion: {final_emotion}")
-    return final_emotion
+    return Counter(emotions_list).most_common(1)[0][0] if emotions_list else None
 
 def predict_mood_cluster(user_id):
     df = pd.read_csv("dataset/user_7_day_listening_history_sample.csv")
     user_data = df[df['user_id'] == user_id]
-    if user_data.empty:
-        print(f"⚠️ No historical data for user {user_id}")
-        return None
+    if user_data.empty: return None
     agg = user_data.groupby('user_id').agg({
-        "tempo": "mean",
-        "energy": "mean",
-        "valence": "mean",
-        "danceability": "mean",
-        "acousticness": "mean",
-        "time_of_day": lambda x: x.mode()[0],
-        "emotion_tag": lambda x: x.mode()[0]
+        "tempo": "mean", "energy": "mean", "valence": "mean", "danceability": "mean",
+        "acousticness": "mean", "time_of_day": lambda x: x.mode()[0], "emotion_tag": lambda x: x.mode()[0]
     }).reset_index(drop=True)
-    
-    # ✅ DO NOT drop columns
     pred_cluster = mood_pipeline.predict(agg)[0]
-    mood = cluster_labels.get(pred_cluster, "Unknown")
-    return mood
-def combine_emotions(face_emotion, voice_emotion, mood_emotion):
-    print(f"\n🧠 Face Emotion: {face_emotion}")
-    print(f"🗣️ Voice Emotion: {voice_emotion}")
-    print(f"📊 Mood Cluster: {mood_emotion}")
-    votes = [e for e in [face_emotion, voice_emotion, mood_emotion] if e]
-    if not votes:
-        return "Unknown"
-    from collections import Counter
-    final_emotion = Counter(votes).most_common(1)[0][0]
-    return final_emotion
+    return cluster_labels.get(pred_cluster, "Unknown")
 
-def recommend_playlist(emotion):
-    recommendations = {
-        "Happy": ["Relaxing", "Happy", "Romantic"],
-        "Sad": ["Relaxing", "Happy"],
-        "Angry": ["Relaxing", "Happy", "Sad"],
-        "Fear": ["Relaxing"],
-        "Neutral": ["Energetic"],
-        "Disgusted": ["Relaxing", "Happy"],
+def combine_emotions(face_emotion, voice_emotion, mood_emotion):
+    all_emotions = [e for e in [face_emotion, voice_emotion, mood_emotion] if e]
+    return Counter(all_emotions).most_common(1)[0][0] if all_emotions else "Unknown"
+
+def recommend_playlist_types(emotion):
+    doctor_recommendations = {
+        "Angry": ["relaxing"],
+        "Sad": ["happy", "romantic"],
+        "Neutral": ["relaxing", "romantic"],
+        "Happy": ["energetic", "happy"],
+        "Fear": ["relaxing", "romantic"],
+        "Disgust": ["relaxing", "happy"]
     }
-    return recommendations.get(emotion, ["Relaxing"])
-""" 
+    return doctor_recommendations.get(emotion, ["relaxing"])
+
+def get_user_preference_vector():
+    import pandas as pd
+    df = pd.read_csv("dataset/predicted_user_history.csv")
+
+    # No need for model — just return mean tempo and energy
+    user_pref = {
+        "tempo": df["tempo"].mean(),
+        "energy": df["energy"].mean()
+    }
+    return user_pref
+
+import numpy as np
+
 def calculate_similarity(song_features, user_pref):
     song_vec = np.array([song_features['tempo'], song_features['energy']])
     user_vec = np.array([user_pref['tempo'], user_pref['energy']])
@@ -173,63 +131,75 @@ def calculate_similarity(song_features, user_pref):
     user_norm = user_vec / np.linalg.norm(user_vec)
     return np.dot(song_norm, user_norm)
 
-def recommend_song_list(emotion, songs_df, user_pref, top_n=5):
-    playlist_types = recommend_playlist(emotion)
+def recommend_song_list(emotion, songs_df, user_pref, top_n=10):
+    playlist_types = recommend_playlist_types(emotion)
+    print(f"🎯 Emotion: {emotion}")
+    print(f"🧠 Doctor Recommendation Playlist Types: {playlist_types}")
+
+    # Normalize and strip whitespaces
+    songs_df['major_feeling'] = songs_df['major_feeling'].astype(str).str.strip().str.lower()
+    songs_df['second_major_feeling'] = songs_df['second_major_feeling'].astype(str).str.strip().str.lower()
+
+    # Convert playlist_types to lowercase
+    playlist_types = [pt.lower() for pt in playlist_types]
+
+    print("🎵 Unique major_feeling values in dataset:", songs_df['major_feeling'].unique())
+    print("🎵 Unique second_major_feeling values in dataset:", songs_df['second_major_feeling'].unique())
+
+    # Filter based on doctor's recommendation
     filtered_songs = songs_df[
-        (songs_df['major_feeling'].str.capitalize().isin(playlist_types)) |
-        (songs_df['second_major_feeling'].str.capitalize().isin(playlist_types))
+        (songs_df['major_feeling'].isin(playlist_types)) |
+        (songs_df['second_major_feeling'].isin(playlist_types))
     ]
+
+    print(f"🔍 Filtered songs count: {len(filtered_songs)}")
+
+    if filtered_songs.empty:
+        print("⚠️ No songs matched the emotion-based playlist types.")
+        return pd.DataFrame()
+
     filtered_songs = filtered_songs.copy()
     filtered_songs['similarity'] = filtered_songs.apply(
         lambda row: calculate_similarity(row, user_pref), axis=1
     )
-    recommended = filtered_songs.sort_values(by='similarity', ascending=False)
-    return recommended[['song', 'singer', 'tempo', 'energy', 'major_feeling', 'second_major_feeling', 'similarity']].head(top_n)
 
-def get_user_pref_vector():
-    df = pd.read_csv("dataset/user_history.csv")
+    return filtered_songs.sort_values(by='similarity', ascending=False).head(top_n)
 
-    # Columns required for the preference model
-    feature_cols = [
-        'tempo', 'energy', 'danceability', 'acousticness', 'instrumentalness',
-        'valence', 'liveness', 'speechiness', 'loudness',
-        'genre', 'artist', 'language', 'lyrics_sentiment', 'emotion_tag'
-    ]
+def generate_playlist_csv(emotion, user_pref_path, mood_song_path, output_path):
+    import pandas as pd
 
-    # Encode categorical columns
-    cat_cols = ['genre', 'artist', 'language', 'lyrics_sentiment', 'emotion_tag']
-    for col in cat_cols:
-        df[col] = df[col].astype('category').cat.codes
+    songs_df = pd.read_csv(mood_song_path)
+    user_pref = get_user_preference_vector()
 
-    input_vector = df[feature_cols].mean().values.reshape(1, -1)
-    predictions = user_pref_model.predict(input_vector)[0]
-
-    return {"tempo": predictions[0], "energy": predictions[1]}
- """
-# Main function
+    playlist_df = recommend_song_list(emotion, songs_df, user_pref, top_n=10)
+    
+    playlist_df.to_csv(output_path, index=False)
+    print(f"✅ Playlist saved to {output_path}")
+# === MAIN ===
 def main():
     user_id = int(input("Enter user ID: "))
-
+    
     # Step 1: Face emotion
     face_emotion = get_face_emotion()
-
+    
     # Step 2: Voice emotion
     record_audio()
     voice_emotion, _ = predict_voice_emotion("live_audio.wav")
-
+    
     # Step 3: Historical mood
-    mood_emotion = predict_mood_cluster(user_id)  # ✅ fixed
-
-    # Step 4: Final emotion
+    mood_emotion = predict_mood_cluster(user_id)
+    
+    # Step 4: Combine all
     final_emotion = combine_emotions(face_emotion, voice_emotion, mood_emotion)
-    print(f"\n🎯 Final Predicted Emotion: {final_emotion}")
+    print(f"\n🎯 Final Emotion: {final_emotion}")
+    
+    # Step 5: Get user preferences
+    final_emotion = final_emotion  # This should be captured from your emotion detection logic
+    user_pref_path = "dataset/user_history.csv"
+    mood_song_path = "mood_based_song_analysis/predicted_moods.csv"
+    output_path = "dataset/personalized_playlist.csv"
 
-    # Step 5: User preference (no CSV saving)
-    """ user_pref = get_user_pref_vector()
+    generate_playlist_csv(final_emotion, user_pref_path, mood_song_path, output_path)
 
-    # Step 6: Recommend songs
-    playlist = recommend_song_list(final_emotion, songs_df, user_pref, top_n=5)
-    print("\n🎵 Recommended Songs:")
-    print(playlist) """
 if __name__ == "__main__":
     main()
