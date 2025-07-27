@@ -1,11 +1,11 @@
 song,singer,tempo,energy,sad_weight,happy_weight,energetic_weight,romantic_weight,relaxing_weight,major_feeling,second_major_feeling,similarity
-Cheap Thrills (feat. Sean Paul),Sia,90,0.85,0.0,0.7,0.35,0.7,0.3,happy,romantic,-0.43874666046188976
-Shape of You,Ed Sheeran,96,0.83,0.0,0.3,0.35,0.7,0.0,romantic,energetic,-0.4394641023185109
-Sorry,Justin Bieber,100,0.85,0.4,0.3,0.35,0.7,0.1,romantic,sad,-0.43959508429086747
-Swalla (feat. Nicki Minaj & Ty Dolla $ign),Jason Derulo,105,0.89,0.0,0.4,0.35,0.5,0.4,romantic,happy,-0.4396164682460773
-Steal My Girl,One Direction,100,0.78,0.0,0.3,0.0,0.8,0.1,romantic,happy,-0.44022367200973617
 No Promises,Shayne Ward,84,0.65,0.2,0.0,0.0,0.9,0.3,romantic,relaxing,-0.44027925136331014
-Close,Nick Jonas,106,0.78,0.0,0.3,0.0,0.5,0.0,romantic,happy,-0.44062003240354053
-Maps,Maroon 5,104,0.75,0.4,0.0,0.0,0.5,0.0,romantic,sad,-0.4407519386241185
-Who Says,Selena Gomez & The Scene,125,0.85,0.0,1.0,0.4,0.5,0.3,happy,romantic,-0.4411212919947821
 Girls Like You (feat. Cardi B) - Cardi B Version,Maroon 5,90,0.6,0.0,0.5,0.0,1.0,0.6,romantic,relaxing,-0.4412409423146308
+Night Changes,One Direction,90,0.5,0.0,0.1,0.0,1.0,0.3,romantic,relaxing,-0.44223773094627516
+Perfect,Ed Sheeran,95,0.5,0.0,0.0,0.0,1.0,0.3,romantic,relaxing,-0.4424999552025783
+A Thousand Years,Christina Perri,85,0.4,0.0,0.0,0.0,0.8,0.3,romantic,relaxing,-0.44299962120687997
+Dangerously,Charlie Puth,85,0.4,0.4,0.0,0.35,0.8,0.6,romantic,relaxing,-0.44299962120687997
+Love The Way You Lie,Eminem,85,0.38,0.5,0.0,0.35,0.7,0.7,romantic,relaxing,-0.4432105508063691
+In the End,Linkin Park,82,0.36,0.7,0.0,0.0,0.8,1.0,relaxing,romantic,-0.4432825700314206
+The Lazy Song,Bruno Mars,82,0.36,0.7,0.0,0.0,0.3,0.7,sad,relaxing,-0.4432825700314206
+Love Yourself,Justin Bieber,82,0.36,0.7,0.0,0.0,0.8,1.0,relaxing,romantic,-0.4432825700314206
