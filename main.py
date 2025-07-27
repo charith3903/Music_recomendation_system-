@@ -172,9 +172,16 @@ def generate_playlist_csv(emotion, user_pref_path, mood_song_path, output_path):
     user_pref = get_user_preference_vector()
 
     playlist_df = recommend_song_list(emotion, songs_df, user_pref, top_n=10)
-    
+
+    if playlist_df.empty:
+        print("⚠️ No songs matched your emotion and preferences.")
+    else:
+        print("\n🎧 Final Personalized Playlist:")
+        print(playlist_df[['song', 'singer']].to_string(index=False))
+
     playlist_df.to_csv(output_path, index=False)
-    print(f"✅ Playlist saved to {output_path}")
+    print(f"\n✅ Playlist saved to {output_path}")
+
 # === MAIN ===
 def main():
     user_id = int(input("Enter user ID: "))
