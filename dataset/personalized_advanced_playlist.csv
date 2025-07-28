@@ -1,13 +1,13 @@
 song,singer,tempo,energy,sad_weight,happy_weight,energetic_weight,romantic_weight,relaxing_weight,major_feeling,second_major_feeling,similarity,fusion_confidence,generated_timestamp,target_emotion
-Shake It Off,Taylor Swift,125,0.85,0.4,1.0,0.75,0.5,0.3,happy,energetic,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Cruel Summer,Taylor Swift,125,0.8,0.0,1.0,0.0,0.6,0.3,happy,romantic,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Treat You Better,Shawn Mendes,100,0.5,0.0,0.1,0.0,1.0,0.0,romantic,happy,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Numb,Linkin Park,130,0.9,0.4,0.6,1.0,0.5,0.0,energetic,happy,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-One Kiss (with Dua Lipa),Calvin Harris,124,0.8,0.0,0.6,0.0,0.6,0.0,happy,romantic,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Roar,Katy Perry,130,0.9,0.4,0.6,1.0,0.5,0.0,energetic,happy,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Hips Don't Lie (feat. Wyclef Jean),Shakira,135,0.9,0.0,1.0,1.0,0.5,0.0,energetic,happy,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-What Makes You Beautiful,One Direction,128,0.85,0.0,1.0,0.65,0.5,0.0,happy,energetic,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Live While We're Young,One Direction,130,0.88,0.0,1.0,1.0,0.5,0.0,energetic,happy,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-Sugar,Maroon 5,125,0.82,0.0,1.0,0.35,0.6,0.3,happy,romantic,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-On The Floor,Jennifer Lopez,135,0.9,0.0,1.0,1.0,0.5,0.0,energetic,happy,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
-You Belong With Me,Taylor Swift,130,0.76,0.4,1.0,0.6,0.6,0.0,happy,energetic,0,0.2858421918689028,2025-07-28 02:15:12.937767,Happy
+Cruel Summer,Taylor Swift,125,0.8,0.0,1.0,0.0,0.6,0.3,happy,romantic,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Someone Like You,Adele,70,0.3,1.0,0.0,0.0,0.6,0.7,sad,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Skyfall,Adele,75,0.3,1.0,0.0,0.0,0.5,1.0,sad,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Too Good At Goodbyes,Sam Smith,80,0.3,1.0,0.0,0.0,0.8,0.7,sad,romantic,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+See You Again (feat. Charlie Puth),Wiz Khalifa,80,0.3,1.0,0.0,0.0,0.8,1.0,sad,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Treat You Better,Shawn Mendes,100,0.5,0.0,0.1,0.0,1.0,0.0,romantic,happy,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Girls Like You (feat. Cardi B) - Cardi B Version,Maroon 5,90,0.6,0.0,0.5,0.0,1.0,0.6,romantic,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+In the End,Linkin Park,82,0.36,0.7,0.0,0.0,0.8,1.0,relaxing,romantic,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+We Don't Talk Anymore (feat. Selena Gomez),Charlie Puth,80,0.3,1.0,0.0,0.0,0.8,1.0,sad,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+One Kiss (with Dua Lipa),Calvin Harris,124,0.8,0.0,0.6,0.0,0.6,0.0,happy,romantic,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Perfect,Ed Sheeran,95,0.5,0.0,0.0,0.0,1.0,0.3,romantic,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral
+Show Me the Meaning of Being Lonely,Backstreet Boys,75,0.3,1.0,0.0,0.0,0.6,0.7,sad,relaxing,0,0.22395277949415787,2025-07-28 10:55:24.442133,Neutral

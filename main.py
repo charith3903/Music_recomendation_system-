@@ -87,11 +87,12 @@ class TerminalUI:
         bar_length = 20
         filled_length = int(bar_length * similarity)
         bar = "█" * filled_length + "░" * (bar_length - filled_length)
-        
+        mood_name = str(mood).title() if mood else "Unknown"
         print(f"""
 {Fore.CYAN}#{rank:2d}{Style.RESET_ALL} │ {Fore.WHITE + Style.BRIGHT}{song[:35]:<35}{Style.RESET_ALL}
      │ {Fore.YELLOW}🎤 {artist[:30]:<30}{Style.RESET_ALL}
-     │ 
+
+     │ {Fore.MAGENTA + Style.BRIGHT}Mood: {mood_name}{Style.RESET_ALL}
      └{'─'*70}""")
     
     @staticmethod
@@ -278,24 +279,29 @@ def calculate_similarity(song_features, user_pref):
 def recommend_song_list(emotion, songs_df, user_pref, top_n=10):
     playlist_types = recommend_playlist_types(emotion)
     
-    print(f"  {Fore.BLUE}🎯 Target Emotion: {Fore.MAGENTA + Style.BRIGHT}{emotion}{Style.RESET_ALL}")
-    print(f"  {Fore.BLUE}🧠 Recommended Playlist Types: {Fore.CYAN}{', '.join(playlist_types)}{Style.RESET_ALL}")
+    print(f"  {Fore.BLUE}🎯 User Emotion: {Fore.RED + Style.BRIGHT}{emotion}{Style.RESET_ALL}")
+    print(f"  {Fore.BLUE}💊 Doctor Recommended Song Moods: {Fore.GREEN + Style.BRIGHT}{', '.join(playlist_types)}{Style.RESET_ALL}")
 
     # Normalize and strip whitespaces
     songs_df['major_feeling'] = songs_df['major_feeling'].astype(str).str.strip().str.lower()
     songs_df['second_major_feeling'] = songs_df['second_major_feeling'].astype(str).str.strip().str.lower()
     playlist_types = [pt.lower() for pt in playlist_types]
 
-    # Filter based on doctor's recommendation
-    filtered_songs = songs_df[
-        (songs_df['major_feeling'].isin(playlist_types)) |
-        (songs_df['second_major_feeling'].isin(playlist_types))
-    ]
+    # STRICT FILTERING: Only include songs where major_feeling matches doctor's recommendations
+    # This ensures ALL users get ONLY doctor-recommended mood songs
+    filtered_songs = songs_df[songs_df['major_feeling'].isin(playlist_types)]
 
-    print(f"  {Fore.BLUE}🔍 Found {len(filtered_songs)} matching songs{Style.RESET_ALL}")
+    print(f"  {Fore.BLUE}🔍 Found {len(filtered_songs)} songs matching doctor's recommendations{Style.RESET_ALL}")
+    
+    # Show breakdown of moods in results for verification
+    if not filtered_songs.empty:
+        mood_counts = filtered_songs['major_feeling'].value_counts()
+        print(f"  {Fore.GREEN}✅ Playlist will contain:{Style.RESET_ALL}")
+        for mood, count in mood_counts.items():
+            print(f"    • {mood.title()}: {count} songs")
 
     if filtered_songs.empty:
-        print(f"  {Fore.RED}⚠️ No songs matched the emotion-based criteria{Style.RESET_ALL}")
+        print(f"  {Fore.RED}⚠️ No songs matched the doctor's recommendations{Style.RESET_ALL}")
         return pd.DataFrame()
 
     filtered_songs = filtered_songs.copy()
@@ -305,6 +311,7 @@ def recommend_song_list(emotion, songs_df, user_pref, top_n=10):
 
     return filtered_songs.sort_values(by='similarity', ascending=False).head(top_n)
 
+# Update your generate_playlist_csv function to use major_feeling for display:
 def generate_playlist_csv(emotion, user_pref_path, mood_song_path, output_path):
     start_time = time.time()
     
@@ -329,7 +336,7 @@ def generate_playlist_csv(emotion, user_pref_path, mood_song_path, output_path):
             song=song['song'],
             artist=song['singer'],
             similarity=song['similarity'],
-            mood=song.get('major_feeling', 'Unknown').title()
+            mood=song['major_feeling'].title()  # Only show doctor-recommended mood
         )
 
     # Save to CSV
@@ -337,7 +344,6 @@ def generate_playlist_csv(emotion, user_pref_path, mood_song_path, output_path):
     print(f"\n  {Fore.GREEN}✅ Playlist saved to: {Fore.CYAN}{output_path}{Style.RESET_ALL}")
     
     return len(playlist_df), time.time() - start_time
-
 # === MAIN ===
 def main():
     start_time = time.time()
